@@ -1,0 +1,397 @@
+<title>年間加算 管理システム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap">
+
+<style>
+  :root{
+    --ground:#eef1ef;
+    --surface:#ffffff;
+    --surface-2:#f6f8f7;
+    --ink:#1e2a27;
+    --muted:#657069;
+    --faint:#98a29c;
+    --border:#dde3e0;
+    --border-strong:#c6cec9;
+    --accent:#137a5e;        /* sheet green */
+    --accent-soft:#e2f1eb;
+    --tsuu:#2f9e6f;          /* 通常 = 緑 */
+    --kasan:#d8452f;         /* 加算 = 赤 */
+    --kasan-soft:#fbe6e1;
+    --new:#fff6d6;           /* 追加列ハイライト */
+    --new-border:#eccf6f;
+    --new-ink:#8a6a12;
+    --badge:#0f6d8a;
+    --badge-soft:#e0f0f5;
+    --shadow:0 1px 2px rgba(20,40,35,.06),0 8px 24px rgba(20,40,35,.06);
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ground:#0f1512;
+      --surface:#171f1b;
+      --surface-2:#1c2521;
+      --ink:#e7ede9;
+      --muted:#93a09a;
+      --faint:#66716b;
+      --border:#2a332e;
+      --border-strong:#3a453f;
+      --accent:#3bb891;
+      --accent-soft:#183129;
+      --tsuu:#4fc08d;
+      --kasan:#f0715f;
+      --kasan-soft:#3a201b;
+      --new:#332e14;
+      --new-border:#6b5a1f;
+      --new-ink:#e6cf7f;
+      --badge:#4bb4d1;
+      --badge-soft:#132d36;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0f1512;
+    --surface:#171f1b;
+    --surface-2:#1c2521;
+    --ink:#e7ede9;
+    --muted:#93a09a;
+    --faint:#66716b;
+    --border:#2a332e;
+    --border-strong:#3a453f;
+    --accent:#3bb891;
+    --accent-soft:#183129;
+    --tsuu:#4fc08d;
+    --kasan:#f0715f;
+    --kasan-soft:#3a201b;
+    --new:#332e14;
+    --new-border:#6b5a1f;
+    --new-ink:#e6cf7f;
+    --badge:#4bb4d1;
+    --badge-soft:#132d36;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Noto Sans JP",system-ui,sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 22px 72px}
+  .num{font-family:"Roboto Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* ---- header ---- */
+  .eyebrow{
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-weight:700;font-size:.74rem;letter-spacing:.18em;
+    color:var(--accent);margin:0 0 10px;
+  }
+  h1{
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-weight:900;font-size:clamp(1.7rem,4.5vw,2.5rem);
+    line-height:1.2;margin:0 0 14px;text-wrap:balance;letter-spacing:.01em;
+  }
+  .lead{font-size:1.02rem;color:var(--muted);max-width:60ch;margin:0}
+
+  .formula{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    margin:24px 0 8px;padding:14px 18px;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    box-shadow:var(--shadow);font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;
+  }
+  .formula .r{font-size:1.05rem}
+  .formula .op{color:var(--faint);font-weight:500;padding:0 2px}
+  .chip{padding:3px 11px;border-radius:999px;font-size:.86rem;font-weight:700;white-space:nowrap}
+  .chip.k30{background:var(--accent-soft);color:var(--accent)}
+  .chip.used{background:var(--new);color:var(--new-ink);border:1px solid var(--new-border)}
+  .chip.sys{background:var(--badge-soft);color:var(--badge)}
+  .chip.rem{background:var(--kasan-soft);color:var(--kasan)}
+
+  /* ---- panel = 1シート ---- */
+  .panel{margin-top:44px}
+  .sheet-tab{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--surface);border:1px solid var(--border);border-bottom:none;
+    border-radius:10px 10px 0 0;padding:9px 16px 10px;
+    font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:.94rem;
+    position:relative;top:1px;
+  }
+  .sheet-tab::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--accent)}
+  .sheet-tab .opt{
+    font-family:"Noto Sans JP",sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.05em;
+    color:var(--badge);background:var(--badge-soft);padding:2px 8px;border-radius:999px;margin-left:2px;
+  }
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:0 12px 12px 12px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .card-note{padding:14px 18px 0;color:var(--muted);font-size:.9rem}
+  .card-note b{color:var(--ink);font-weight:700}
+  .scroll{overflow-x:auto;padding:16px 18px 20px}
+
+  /* ---- spreadsheet grid ---- */
+  table{border-collapse:collapse;width:100%;font-size:.87rem;min-width:520px}
+  thead th{
+    background:var(--surface-2);color:var(--muted);font-weight:700;
+    text-align:left;padding:9px 12px;border:1px solid var(--border);
+    white-space:nowrap;font-size:.8rem;
+  }
+  tbody td{padding:9px 12px;border:1px solid var(--border);white-space:nowrap}
+  tbody tr:nth-child(even) td{background:var(--surface-2)}
+  .faded{color:var(--faint)}
+  .colnew{background:var(--new)!important;border-color:var(--new-border)!important;color:var(--ink)}
+  th.colnew{background:var(--new)!important;color:var(--new-ink)!important}
+  .newtag{
+    display:block;font-size:.62rem;letter-spacing:.06em;color:var(--new-ink);
+    font-weight:700;margin-top:2px;
+  }
+  .center{text-align:center}
+
+  /* ---- calendar ---- */
+  .cal th,.cal td{text-align:center}
+  .cal .datecol{text-align:left;font-family:"Roboto Mono",monospace;color:var(--muted);font-weight:500}
+  .mk{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:.9rem;font-weight:700;line-height:1}
+  .mk.t{color:var(--tsuu);border:2px solid var(--tsuu)}
+  .mk.k{color:#fff;background:var(--kasan);border:2px solid var(--kasan)}
+  :root[data-theme="dark"] .mk.k,:root:not([data-theme="light"]) .mk.k{color:#171f1b}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .mk.k{color:#fff}}
+  .rowlabel{text-align:left;font-weight:700;color:var(--muted);font-size:.82rem}
+  tr.sumrow td{background:var(--surface-2);border-top:2px solid var(--border-strong)}
+  tr.remrow td{background:var(--kasan-soft);font-weight:700}
+  tr.remrow .rowlabel{color:var(--kasan)}
+  .rembadge{color:var(--kasan);font-weight:700}
+
+  .legend{display:flex;flex-wrap:wrap;gap:18px;padding:2px 18px 18px;font-size:.85rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+
+  /* ---- 申請タブ (dropdowns + list) ---- */
+  .picker{display:flex;flex-wrap:wrap;gap:14px;padding:18px 18px 4px}
+  .select{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--surface-2);border:1.5px solid var(--border-strong);border-radius:9px;
+    padding:9px 14px;font-weight:700;min-width:150px;justify-content:space-between;
+  }
+  .select .lbl{font-size:.66rem;letter-spacing:.08em;color:var(--muted);font-weight:700}
+  .select .val{font-family:"Zen Kaku Gothic New",sans-serif}
+  .select .car{color:var(--accent);font-weight:900}
+  .result{padding:8px 18px 20px}
+  .result-head{
+    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px;
+    padding:14px 0 10px;border-bottom:1px solid var(--border);margin-bottom:4px;
+  }
+  .result-head .ttl{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700}
+  .tally{display:flex;gap:8px;flex-wrap:wrap}
+  .datelist{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+  .datelist li{
+    display:flex;align-items:center;gap:9px;
+    background:var(--kasan-soft);border:1px solid var(--kasan);border-radius:8px;
+    padding:8px 12px;font-family:"Roboto Mono",monospace;font-weight:700;color:var(--ink);font-size:.9rem;
+  }
+  .datelist li::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--kasan);flex:none}
+  .idx{color:var(--kasan);font-size:.72rem;margin-left:auto;font-family:"Roboto Mono",monospace}
+
+  /* ---- foot: 松竹梅 ---- */
+  .tiers{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .tier{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+  .tier.base{border-color:var(--accent);border-width:1.5px}
+  .tier h3{margin:0 0 4px;font-family:"Zen Kaku Gothic New",sans-serif;font-size:1.06rem}
+  .tier .tag{font-size:.68rem;font-weight:700;letter-spacing:.08em;padding:3px 10px;border-radius:999px;display:inline-block;margin-bottom:10px}
+  .tier.base .tag{background:var(--accent-soft);color:var(--accent)}
+  .tier.opt .tag{background:var(--badge-soft);color:var(--badge)}
+  .tier p{margin:0;font-size:.9rem;color:var(--muted)}
+  .foundation{
+    margin-top:16px;padding:16px 20px;border-radius:12px;
+    background:var(--accent-soft);border:1px dashed var(--accent);
+    font-size:.92rem;
+  }
+  .foundation b{font-family:"Zen Kaku Gothic New",sans-serif}
+  .disclaimer{margin-top:34px;color:var(--faint);font-size:.78rem;text-align:center}
+
+  /* ---- 初年度接続タイムライン ---- */
+  .flow{display:flex;flex-wrap:nowrap;align-items:stretch;min-width:520px}
+  .flow-side{flex:1 1 0;padding:20px 22px;display:flex;flex-direction:column;gap:6px}
+  .flow-side.past{background:var(--new);border:1px solid var(--new-border);border-radius:12px 0 0 12px}
+  .flow-side.sys{background:var(--accent-soft);border:1px solid var(--accent);border-radius:0 12px 12px 0}
+  .flow-tag{align-self:flex-start;font-size:.66rem;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:999px}
+  .flow-side.past .flow-tag{background:var(--surface);color:var(--new-ink);border:1px solid var(--new-border)}
+  .flow-side.sys .flow-tag{background:var(--surface);color:var(--accent);border:1px solid var(--accent)}
+  .flow-h{margin:2px 0 0;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:1.02rem}
+  .flow-d{margin:0;font-size:.86rem;color:var(--muted)}
+  .flow-d b{color:var(--ink)}
+  .flow-axis{flex:0 0 auto;position:relative;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .flow-axis::before{content:"";position:absolute;top:8px;bottom:8px;width:2px;background:var(--border-strong)}
+  .axis-badge{position:relative;z-index:1;background:var(--ink);color:var(--surface);
+    padding:9px 13px;border-radius:9px;text-align:center;white-space:nowrap;
+    font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;font-size:.9rem;box-shadow:var(--shadow)}
+  .axis-badge small{display:block;font-size:.62rem;opacity:.78;font-weight:500;letter-spacing:.04em}
+  .flow-note{margin:14px 18px 20px;padding:12px 16px;border-radius:10px;background:var(--surface-2);
+    border:1px solid var(--border);font-size:.88rem;color:var(--muted)}
+  .flow-note b{color:var(--ink);font-weight:700}
+  @media (max-width:560px){
+    .flow{flex-direction:column;min-width:0}
+    .flow-side.past{border-radius:12px 12px 0 0}
+    .flow-side.sys{border-radius:0 0 12px 12px;border-top:none}
+    .flow-axis{padding:4px 0}
+    .flow-axis::before{top:0;bottom:0;left:0;right:0;width:auto;height:2px;top:50%}
+  }
+
+  .divider{margin:6px 0 0;color:var(--faint);font-size:.8rem;letter-spacing:.04em}
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">YORIMADO ／ 年間加算 管理システム（提案モック）</p>
+  <h1>入所日から30日ぶんの加算を、<br>取りこぼさず使い切る。</h1>
+  <p class="lead">各児童の入所日を起点に、年間30日の加算対象日を自動で管理。「残り何日使えるか」を現場で一目で分かるようにするのが役目です。</p>
+
+  <div class="formula">
+    <span class="r">加算残数</span><span class="op">＝</span>
+    <span class="chip k30">年間 30日</span><span class="op">−</span>
+    <span class="chip used">既使用（手入力）</span><span class="op">−</span>
+    <span class="chip sys">システム計上</span>
+    <span class="op" style="margin-left:auto">→</span>
+    <span class="chip rem">残数を自動表示</span>
+  </div>
+  <p class="divider">※ 加算のカウントは暦日数（1泊2日＝2日）。未使用ぶんは入所記念日でリセット（繰越なし）。</p>
+
+  <!-- ① 児童マスタ -->
+  <div class="panel">
+    <div class="sheet-tab">児童マスタ</div>
+    <div class="card">
+      <p class="card-note">既存の児童マスタに <b>2列だけ追加</b>。黄色の列を、お客さまが手入力します。残数の計算に必要なのはこの2つだけです。</p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th><th>児童名</th><th class="faded">区分</th><th class="faded">年間利用枠</th>
+              <th class="colnew">入所日<span class="newtag">＋追加・手入力</span></th>
+              <th class="colnew">今年の既使用<span class="newtag">＋追加・手入力</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="num">1</td><td>山田 太郎</td><td class="faded">区分3</td><td class="faded num">240</td><td class="colnew num">2024/05/03</td><td class="colnew num center">5</td></tr>
+            <tr><td class="num">2</td><td>鈴木 一郎</td><td class="faded">区分2</td><td class="faded num">180</td><td class="colnew num">2023/11/12</td><td class="colnew num center">3</td></tr>
+            <tr><td class="num">3</td><td>斉藤 花子</td><td class="faded">区分3</td><td class="faded num">240</td><td class="colnew num">2026/06/20</td><td class="colnew num center">0</td></tr>
+            <tr><td class="num">4</td><td>田中 みなと</td><td class="faded">区分2</td><td class="faded num">180</td><td class="colnew num">2022/09/01</td><td class="colnew num center">12</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="card-note" style="padding:0 18px 18px">「今年の既使用」＝ <b>システム導入日の時点まで</b>に、今年 加算を使った日数（手書き台帳＋記憶で分かる範囲でOK）。導入日の翌日からはシステムが自動で数えるので、二重計上しません。<b>この列が効くのは初年度だけ</b>で、来年からは全自動です。</p>
+    </div>
+  </div>
+
+  <!-- ② 加算カレンダー -->
+  <div class="panel">
+    <div class="sheet-tab">来館カレンダー <span style="color:var(--faint);font-weight:500">2026年5月</span></div>
+    <div class="card">
+      <p class="card-note">いつもの来館カレンダーに、<b>加算対象日を赤丸</b>で表示。一番下に <b>「年間加算残数」の行</b>を1本追加して、塗りながら残りが分かります。</p>
+      <div class="scroll">
+        <table class="cal">
+          <thead>
+            <tr><th class="datecol">日付</th><th>山田 太郎</th><th>鈴木 一郎</th><th>斉藤 花子</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="datecol">5/03 (土)</td><td><span class="mk k">○</span></td><td></td><td></td></tr>
+            <tr><td class="datecol">5/04 (日)</td><td></td><td><span class="mk t">○</span></td><td></td></tr>
+            <tr><td class="datecol">5/06 (火)</td><td><span class="mk k">○</span></td><td></td><td></td></tr>
+            <tr><td class="datecol">5/07 (水)</td><td></td><td><span class="mk t">○</span></td><td><span class="mk t">○</span></td></tr>
+            <tr><td class="datecol">5/10 (土)</td><td><span class="mk k">○</span></td><td><span class="mk t">○</span></td><td></td></tr>
+            <tr><td class="datecol">5/13 (火)</td><td><span class="mk k">○</span></td><td></td><td><span class="mk t">○</span></td></tr>
+            <tr><td class="datecol">5/17 (土)</td><td><span class="mk k">○</span></td><td><span class="mk t">○</span></td><td></td></tr>
+            <tr class="sumrow"><td class="rowlabel">月間利用数</td><td class="num center">6</td><td class="num center">4</td><td class="num center">2</td></tr>
+            <tr class="remrow"><td class="rowlabel">年間加算残数 ＋追加</td><td class="num center rembadge">残 19</td><td class="num center rembadge">残 27</td><td class="num center rembadge">残 30</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><span class="mk t" style="width:20px;height:20px;font-size:.75rem">○</span> 通常の来館・宿泊</span>
+        <span><span class="mk k" style="width:20px;height:20px;font-size:.75rem">○</span> 加算対象（申請できる日）</span>
+        <span>入所日から最短で30日ぶんを自動で赤丸 → 使い切ると通常に戻る</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 年間加算申請タブ -->
+  <div class="panel">
+    <div class="sheet-tab">年間加算申請 <span class="opt">オプション</span></div>
+    <div class="card">
+      <p class="card-note">申請作業をラクにする <b>転記用シート</b>。<b>年</b>と<b>児童</b>をプルダウンで選ぶと、その1年ぶんの加算対象日が一覧で出ます。これを見ながら申請システムに入力するだけ。</p>
+      <div class="picker">
+        <span class="select"><span class="lbl">年</span><span class="val">2026年</span><span class="car">▾</span></span>
+        <span class="select"><span class="lbl">児童</span><span class="val">山田 太郎</span><span class="car">▾</span></span>
+      </div>
+      <div class="result">
+        <div class="result-head">
+          <span class="ttl">加算対象日 一覧（2026/05/03 〜 2027/05/02）</span>
+          <span class="tally">
+            <span class="chip sys">計上 11日</span>
+            <span class="chip k30">上限 30日</span>
+            <span class="chip rem">残 19日</span>
+          </span>
+        </div>
+        <ul class="datelist">
+          <li>5/03<span class="idx">01</span></li>
+          <li>5/06<span class="idx">02</span></li>
+          <li>5/10<span class="idx">03</span></li>
+          <li>5/13<span class="idx">04</span></li>
+          <li>5/17<span class="idx">05</span></li>
+          <li>5/20<span class="idx">06</span></li>
+          <li>5/24<span class="idx">07</span></li>
+          <li>5/27<span class="idx">08</span></li>
+          <li>6/03<span class="idx">09</span></li>
+          <li>6/07<span class="idx">10</span></li>
+          <li>6/10<span class="idx">11</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 初年度データの接続 -->
+  <div class="panel">
+    <div class="sheet-tab">初年度データの接続</div>
+    <div class="card">
+      <p class="card-note">今年ぶんだけ、手書き実績をシステムに引き継ぎます。境目は <b>導入日1本</b>。手書きがいつ止まっていても大丈夫です。</p>
+      <div class="scroll">
+        <div class="flow">
+          <div class="flow-side past">
+            <span class="flow-tag">導入日より前</span>
+            <p class="flow-h">手書き（もう止まっててOK）</p>
+            <p class="flow-d">今年トータルで使った日数を<br><b>「今年の既使用日数」に1回だけ手入力</b></p>
+          </div>
+          <div class="flow-axis">
+            <span class="axis-badge">導入日<small>＝締め日</small></span>
+          </div>
+          <div class="flow-side sys">
+            <span class="flow-tag">導入日より後</span>
+            <p class="flow-h">システムが自動カウント</p>
+            <p class="flow-d">来館記録から加算対象日を<br><b>毎日 自動で計上</b></p>
+          </div>
+        </div>
+      </div>
+      <p class="flow-note">境目は導入日1本だけ。だから <b>手書きぶんとシステムぶんは二重計上しません</b>。この手入力が効くのは <b>初年度だけ</b>で、来年からは入所日を起点に全自動です。</p>
+    </div>
+  </div>
+
+  <!-- 松竹梅 -->
+  <div class="tiers">
+    <div class="tier base">
+      <span class="tag">標準でつくる</span>
+      <h3>① 児童マスタ2列 ＋ ② 加算カレンダー</h3>
+      <p>入所日と既使用を入れれば、赤丸と残数が自動で出る。まずここまでで「取りこぼさない」は達成できます。</p>
+    </div>
+    <div class="tier opt">
+      <span class="tag">オプション</span>
+      <h3>③ 年間加算申請タブ</h3>
+      <p>申請時の転記元がほしければ追加。土台は共通なので、後から足しても手戻りはありません。</p>
+    </div>
+  </div>
+
+  <div class="foundation">
+    土台は <b>「加算フラグ（児童 × 日付）」1個</b>。ここに印を付ける／数えるだけで、上の3つ（残数・赤丸・申請一覧）が全部生えます。だから「最短で自動」も、将来「日を自由に選ぶ」も、同じ器で切り替えられます。
+  </div>
+
+  <p class="disclaimer">※ 本ページは提案用モックです。児童名・日付・数値はすべてダミー（実データではありません）。</p>
+
+</div>
