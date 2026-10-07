@@ -237,6 +237,35 @@
     .flow-axis::before{top:0;bottom:0;left:0;right:0;width:auto;height:2px;top:50%}
   }
 
+  /* ---- CTA: 次のステップ ---- */
+  .cta{
+    margin-top:44px;padding:26px 24px 24px;border-radius:14px;
+    background:var(--surface);border:1.5px solid var(--accent);box-shadow:var(--shadow);
+  }
+  .cta h2{
+    margin:0 0 6px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;
+    font-size:clamp(1.2rem,3vw,1.5rem);line-height:1.35;text-wrap:balance;
+  }
+  .cta .cta-lead{margin:0 0 18px;color:var(--muted);font-size:.94rem}
+  .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:step}
+  .steps li{
+    counter-increment:step;position:relative;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px 14px 52px;font-size:.9rem;color:var(--muted);
+  }
+  .steps li::before{
+    content:counter(step);position:absolute;left:14px;top:14px;
+    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:var(--accent);color:var(--surface);
+    font-family:"Roboto Mono",monospace;font-weight:700;font-size:.85rem;
+  }
+  .steps b{display:block;color:var(--ink);font-family:"Zen Kaku Gothic New",sans-serif;font-size:.98rem;margin-bottom:2px}
+  .cta-foot{
+    margin:18px 0 0;padding-top:14px;border-top:1px solid var(--border);
+    font-size:.88rem;color:var(--muted);
+  }
+  .cta-foot b{color:var(--accent)}
+
   .divider{margin:6px 0 0;color:var(--faint);font-size:.8rem;letter-spacing:.04em}
 </style>
 
@@ -391,6 +420,18 @@
   <div class="foundation">
     土台は <b>「加算フラグ（児童 × 日付）」1個</b>。ここに印を付ける／数えるだけで、上の3つ（残数・赤丸・申請一覧）が全部生えます。だから「最短で自動」も、将来「日を自由に選ぶ」も、同じ器で切り替えられます。
   </div>
+
+  <!-- CTA: 次のステップ -->
+  <section class="cta">
+    <h2>まずは「標準」から始めて、今年ぶんの加算を取りこぼさない。</h2>
+    <p class="cta-lead">決めていただくことは3つだけ。揃えば、導入日の翌日から残数が自動で出ます。</p>
+    <ol class="steps">
+      <li><b>範囲を選ぶ</b>標準（①②）のみか、③ 年間加算申請タブも付けるか。</li>
+      <li><b>導入日を決める</b>手書きとシステムの境目になる日。この日を締め日にします。</li>
+      <li><b>2列を手入力</b>児童マスタの「入所日」と「今年の既使用」を1回だけ入れていただきます。</li>
+    </ol>
+    <p class="cta-foot">ご返信は <b>「標準のみ」または「標準＋オプション」</b> と <b>導入希望日</b> だけで大丈夫です。オプションは後から足しても手戻りはありません。</p>
+  </section>
 
   <p class="disclaimer">※ 本ページは提案用モックです。児童名・日付・数値はすべてダミー（実データではありません）。</p>
 
